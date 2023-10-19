@@ -3,7 +3,7 @@ const cors = require("cors");
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 // middeleware
@@ -37,6 +37,15 @@ async function run() {
         // database and collection
         const database = client.db("userDB");
         const productCollection = database.collection("product");
+        const cartCollection = database.collection("cart");
+
+        // get api for whole added data
+        app.get("/add",async(req,res)=>{
+            const cursor = productCollection.find()
+            const result = await cursor.toArray()
+            res.send(result)
+
+        })
 
         // [pst api for add product]
 
@@ -46,6 +55,41 @@ async function run() {
             const result = await productCollection.insertOne(newProduct)
             res.send(result)
         })
+
+
+
+        // get api for mycart
+        app.get("/cart",async(req,res)=>{
+            const cursor = cartCollection.find()
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+
+
+
+
+        // post api for my cart
+        app.post("/cart",async(req,res)=>{
+            const cartItem = req.body
+            console.log(cartItem);
+            const result = await cartCollection.insertOne(cartItem)
+            res.send(result);
+        })
+
+        // delte api formy cart
+        app.delete("/cart/:id",async(req,res)=>{
+            const id = req.params.id
+            // console.log("pls delte ", id)
+            const query = {_id : (id)}
+            const result = await cartCollection.deleteOne(query)
+            res.send(result)
+        })
+
+
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");

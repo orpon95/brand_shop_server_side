@@ -46,6 +46,13 @@ async function run() {
             res.send(result)
 
         })
+        // get api for update from product
+        app.get("/add/:id", async (req,res)=>{
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)} 
+            const result = await productCollection.findOne(query)
+            res.send(result)
+        })
 
         // [pst api for add product]
 
@@ -53,6 +60,29 @@ async function run() {
             const newProduct = req.body;
             console.log(newProduct);
             const result = await productCollection.insertOne(newProduct)
+            res.send(result)
+        })
+         
+
+        // put api in product for update
+        app.put("/add/:id",async (req,res)=>{
+            const id = req.params.id;
+            const filter = {_id: new ObjectId(id)}
+            const options = {upsert:true}
+            const updatedProduct = req.body
+
+            const setUpdatedProduct = {
+                $set:{
+                    image:updatedProduct.image,
+                    name:updatedProduct.name,
+                    brandName:updatedProduct.brandName,
+                    type:updatedProduct.type,
+                    price:updatedProduct.price,
+                    short_description:updatedProduct.short_description,
+                    rating_2:updatedProduct.rating_2
+                }
+            }
+            const result =await productCollection.updateOne(filter,setUpdatedProduct,options)
             res.send(result)
         })
 
